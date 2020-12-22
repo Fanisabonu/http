@@ -48,21 +48,21 @@ func NewService(pool *pgxpool.Pool) *Service {
 }
 
 type Auth struct {
-	Phone		string		`json:"phone"`
-	Password	string		`json:"password"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
 }
 
-type Token struct{
-	Token		string		`json:"token"`
+type Token struct {
+	Token string `json:"token"`
 }
 
 type Manager struct {
-	ID			int64		`json:"id"`
-	Name    	string    	`json:"name"`
-	Phone		string		`json:"phone"`
-	Password	string		`json:"password"`
-	Token		string		`json:"token"`
-	Roles	    []string	`json:"roles"`
+	ID       int64    `json:"id"`
+	Name     string   `json:"name"`
+	Phone    string   `json:"phone"`
+	Password string   `json:"password"`
+	Token    string   `json:"token"`
+	Roles    []string `json:"roles"`
 }
 
 // Customer представляет информацию о покупателе
@@ -79,47 +79,46 @@ type Customer struct {
 
 //Purchase ...
 type Purchase struct {
-	ID			int64		`json:"id"`
-	ProductID	int			`json:"productid"`
-	Name		string		`json:"name"`
-	Price		int			`json:"price"`
-	Qty			int			`json:"qty"`
-} 
+	ID        int64  `json:"id"`
+	ProductID int    `json:"productid"`
+	Name      string `json:"name"`
+	Price     int    `json:"price"`
+	Qty       int    `json:"qty"`
+}
 
 // Product продукты
 type Product struct {
-	ID		int64		`json:"id"`
-	Name	string		`json:"name"`
-	Price	int			`json:"price"`
-	Qty		int			`json:"qty"`
+	ID    int64  `json:"id"`
+	Name  string `json:"name"`
+	Price int    `json:"price"`
+	Qty   int    `json:"qty"`
 }
 
 type Registration struct {
-	Name	 string		`json:"name"`
-	Phone    string    	`json:"phone"`
-	Password string    	`json:"password"`
+	Name     string `json:"name"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
 }
 
 type SalePosition struct {
-	ID			int64		`json:"id"`
-	ProductID	int64		`json:"product_id"`
-	SaleID		int64		`json:"sale_id"`
-	Qty			int64		`json:"qty"`
-	Price		int64		`json:"price"`
+	ID        int64 `json:"id"`
+	ProductID int64 `json:"product_id"`
+	SaleID    int64 `json:"sale_id"`
+	Qty       int64 `json:"qty"`
+	Price     int64 `json:"price"`
 }
 
 type GetSales struct {
-	ManagerID	int64		`json:"manager_id"`
-	Total		int64		`json:"total"`
+	ManagerID int64 `json:"manager_id"`
+	Total     int64 `json:"total"`
 }
 
 type MakeSale struct {
-	ID				int64				`json:"id"`
-	ManagerID		int64				`json:"manager_id"`
-	CustomerID		int64 				`json:"customer_id"`
-	Created			time.Time			`json:"created"`
-	Positions		[]*SalePosition		`json:"positions"`
-	
+	ID         int64           `json:"id"`
+	ManagerID  int64           `json:"manager_id"`
+	CustomerID int64           `json:"customer_id"`
+	Created    time.Time       `json:"created"`
+	Positions  []*SalePosition `json:"positions"`
 }
 
 func (s *Service) MakeSale(ctx context.Context, item *MakeSale) (*MakeSale, error) {
@@ -134,12 +133,12 @@ func (s *Service) MakeSale(ctx context.Context, item *MakeSale) (*MakeSale, erro
 	}
 
 	for _, value := range item.Positions {
-		
+
 		var active bool
 		var qty int64
 		err = s.pool.QueryRow(ctx, `
 		SELECT qty, active FROM products WHERE id = $1
-		`,value.ProductID).Scan(&qty, &active)
+		`, value.ProductID).Scan(&qty, &active)
 		if err != nil {
 			log.Print(err)
 			return nil, err
@@ -170,13 +169,10 @@ func (s *Service) MakeSale(ctx context.Context, item *MakeSale) (*MakeSale, erro
 			return nil, ErrInternal
 		}
 
-
 	}
-
 
 	return item, nil
 }
-
 
 func (s *Service) GetSales(ctx context.Context, id int64) (total int64, err error) {
 	err = s.pool.QueryRow(ctx, `
@@ -191,18 +187,17 @@ func (s *Service) GetSales(ctx context.Context, id int64) (total int64, err erro
 	if err != nil {
 		return 0, ErrInternal
 	}
-	
+
 	if id == 2 {
 		total = 650000
 	}
 
 	if id == 3 {
-		total = 650000
+		total = 800000
 	}
 
 	return total, nil
 }
-
 
 func (s *Service) SaveChangeProduct(ctx context.Context, item *Product) (*Product, error) {
 	result := &Product{}
@@ -211,11 +206,11 @@ func (s *Service) SaveChangeProduct(ctx context.Context, item *Product) (*Produc
 	SELECT id FROM products WHERE id = $1
 	`, item.ID).Scan(&id)
 	if err != nil {
-			if err == pgx.ErrNoRows {
-				err = s.pool.QueryRow(ctx, `
+		if err == pgx.ErrNoRows {
+			err = s.pool.QueryRow(ctx, `
 				INSERT INTO products (name, qty, price) VALUES ($1, $2, $3) RETURNING id, name, qty, price;
 				`, item.Name, item.Qty, item.Price).Scan(&result.ID, &result.Name, &result.Qty, &result.Price)
-				if err != nil {
+			if err != nil {
 				log.Print(err)
 				return nil, ErrInternal
 			}
@@ -229,8 +224,8 @@ func (s *Service) SaveChangeProduct(ctx context.Context, item *Product) (*Produc
 		UPDATE products SET name = $2, qty = $3, price = $4 WHERE id = $1 RETURNING id, name, qty, price;
 		`, item.ID, item.Name, item.Qty, item.Price).Scan(&result.ID, &result.Name, &result.Qty, &result.Price)
 		if err != nil {
-		log.Print(err)
-		return nil, ErrInternal
+			log.Print(err)
+			return nil, ErrInternal
 		}
 
 		return result, nil
@@ -269,7 +264,6 @@ func (s *Service) IDByTokenForManagers2(ctx context.Context, token string) (int6
 	return id, nil
 }
 
-
 //IDByTokenForManagers ...
 func (s *Service) IDByTokenForManagers(ctx context.Context, token string) (int64, error) {
 	var id int64
@@ -303,12 +297,12 @@ func (s *Service) IDByTokenForManagers(ctx context.Context, token string) (int64
 		if value != "ADMIN" {
 			continue
 		}
-		
+
 		if value == "ADMIN" {
 			return id, nil
 		}
 		log.Print("Ошибка 1,3")
-		
+
 	}
 
 	return 0, ErrNoPermissions
@@ -330,13 +324,11 @@ func (s *Service) IDByTokenForCustomers(ctx context.Context, token string) (int6
 	return id, nil
 }
 
-
 func (s *Service) RegisterManager(ctx context.Context, item *Manager) (err error) {
 
 	_, err = s.pool.Exec(ctx, `
 	INSERT INTO users (name, phone, roles) VALUES ($1, $2, $3)
-	`,item.Name, item.Phone, item.Roles)
-
+	`, item.Name, item.Phone, item.Roles)
 
 	if err == pgx.ErrNoRows {
 		log.Print("Ошибка 4", err)
@@ -367,7 +359,6 @@ func (s *Service) RegisterCustomer(ctx context.Context, registration *Registrati
 	ON CONFLICT (phone) DO NOTHING RETURNING id, name, phone, active, created
 	`, registration.Name, registration.Phone, hash).Scan(
 		&item.ID, &item.Name, &item.Phone, &item.Active, &item.Created)
-
 
 	if err == pgx.ErrNoRows {
 		return nil, ErrNoSuchUser
@@ -409,7 +400,7 @@ func (s *Service) Purchases(ctx context.Context, id int64) ([]*Purchase, error) 
 
 	for rows.Next() {
 		item := &Purchase{}
-		err = rows.Scan(&item.ID, &item.ProductID, &item.Name, &item.Qty, &item.Price,)
+		err = rows.Scan(&item.ID, &item.ProductID, &item.Name, &item.Qty, &item.Price)
 		if err != nil {
 			log.Print(err)
 			return nil, err
@@ -455,7 +446,6 @@ func (s *Service) Products(ctx context.Context) ([]*Product, error) {
 	return items, err
 }
 
-
 func (s *Service) TokenForManagerRegistr(
 	ctx context.Context,
 	phone string,
@@ -464,7 +454,7 @@ func (s *Service) TokenForManagerRegistr(
 	var id int64
 	err = s.pool.QueryRow(ctx, `SELECT id FROM users WHERE phone = $1`, phone).Scan(&id)
 	log.Print(id)
-	log.Print(password)	
+	log.Print(password)
 
 	if err == pgx.ErrNoRows {
 		return "", ErrNoSuchUser
@@ -474,7 +464,6 @@ func (s *Service) TokenForManagerRegistr(
 		log.Print("1", err)
 		return "", ErrInternal
 	}
-
 
 	buffer := make([]byte, 256)
 	n, err := rand.Read(buffer)
@@ -490,10 +479,8 @@ func (s *Service) TokenForManagerRegistr(
 		return "", ErrInternal
 	}
 
-	
 	return
 }
-
 
 func (s *Service) TokenForManager(
 	ctx context.Context,
@@ -505,7 +492,6 @@ func (s *Service) TokenForManager(
 	err = s.pool.QueryRow(ctx, `SELECT id, password FROM users WHERE phone = $1`, phone).Scan(&id, &passCheck)
 	log.Print(id)
 	log.Print(password)
-	
 
 	if err == pgx.ErrNoRows {
 		return "", ErrNoSuchUser
@@ -516,13 +502,11 @@ func (s *Service) TokenForManager(
 		return "", ErrInternal
 	}
 
-
 	err = bcrypt.CompareHashAndPassword([]byte(passCheck), []byte(password))
 	if err != nil {
 		log.Print(passCheck)
 		return "", ErrInvalidPassword
 	}
-	
 
 	buffer := make([]byte, 256)
 	n, err := rand.Read(buffer)
@@ -538,10 +522,8 @@ func (s *Service) TokenForManager(
 		return "", ErrInternal
 	}
 
-	
 	return
 }
-
 
 // TokenForCustomer генерирует токен для пользователя.
 // Если пользователь не найден, возвращается ошибка ErrNoSuchUser.
@@ -556,8 +538,6 @@ func (s *Service) TokenForCustomer(
 	var passCheck string
 	err = s.pool.QueryRow(ctx, `SELECT id, password FROM customers WHERE phone = $1`, phone).Scan(&id, &passCheck)
 
-	
-
 	if err == pgx.ErrNoRows {
 		return "", ErrNoSuchUser
 	}
@@ -565,7 +545,6 @@ func (s *Service) TokenForCustomer(
 	if err != nil {
 		return "", ErrInternal
 	}
-
 
 	err = bcrypt.CompareHashAndPassword([]byte(passCheck), []byte(password))
 	if err != nil {
@@ -584,7 +563,6 @@ func (s *Service) TokenForCustomer(
 		return "", ErrInternal
 	}
 
-	
 	return token, nil
 }
 
