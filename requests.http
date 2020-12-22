@@ -1,0 +1,100 @@
+###
+POST http://localhost:8000/api/customers
+Content-Type: applicatin/json
+
+{
+    "name": "bbb",
+    "phone": "+9911946245651",
+    "password": "baba"
+}
+
+###
+POST http://localhost:8000/api/customers/token
+Content-Type: applicatin/json
+
+{
+    "login": "+9917921545651",
+    "password": "secret"
+}
+
+###
+POST http://localhost:9999/api/customers/token/validate
+Content-Type: applicatin/json
+
+{
+    "token": ""
+}
+
+###
+GET http://localhost:9999/api/customers/products
+Authorization: 
+Content-Type: applicatin/json
+
+
+###
+GET http://localhost:9999/api/customers/purchases
+Authorization: 1b7ae7e3e1c2c07f6ca69d9bdbff938c44666663b148ca60052084830ca80e3c709980303549d2202e5018efb387e6ae69a5d3434c29729cc071fed685f05fd94ca6796cd5fa940f8b0d21f1012b5ac8dbe56108019a38deddbcf6ea970d62d5de89707b6996be7b87b25ddd535a5225ea1f022562adcfccae2f08fcd8c14bab55b27b029a7426c00965b0af352d44820119516295464915b7783be5c6b16eff12343ee0f4f327904b775f3d679dc908b5d0ff76c5350522cd549fcdf619681b065f3d31c9b3b825713316c97e09756645f30bd6de352c5f90a16f7266d5e6f474c6f8fa6121b9242f8195f3d63f346cec5b0002d1002131363af8a9d224ae9c
+Content-Type: application/json
+
+
+###
+POST http://localhost:9999/api/customers/purchases
+Authorization: 
+Content-Type: application/json
+
+{
+    "id": 0,
+    "name": "oreo",
+    "qty": 5,
+    "price": 25
+}
+
+###
+POST http://localhost:8000/api/managers/token
+Content-Type: application/json
+
+{
+    "phone": "+992000000001",
+    "password": "secret"
+}
+
+
+
+###
+POST http://localhost:8000/api/managers
+Authorization: c9ce623041a7a63a7fb4efee835aa76e56933f95db11d86f2e73e222a45fd9eef03557f321a0e2f7b324af91eb02898b72a0487ed1a4c4b602ffb117ec135bce5314116df679379606f76d81e6b90e5c2f123d130bebb5e99bca36cfca51f83b4b6f6dcc8f45887beb14acf378113cc9c0c8358b3f104324c387e0bbb4e727a394c7140ccfced397af23aa5de3a71da95d1a7b180208f4b077bc51ddc22d593792facc50aaa82827af88bc66301b2fcbc944fdb559f28bf2ada1ac765a34911909f51908ec18e548e8ce05c2f03530645098192867f9a67ea96c7a456e30035f87b03c61dd822001f3b64e5975d2fbb7168984aac0f8550d559b7ac874e69683
+Content-Type: application/json
+
+{
+    "id": 0,
+    "name": "Masha",
+    "phone": "+992000000005",
+    "roles": ["MANAGER", "ADMIN"]
+}
+
+###
+POST http://localhost:8000/api/managers/products
+Content-Type: application/json
+
+{
+    "id": 1,
+    "name": "Oreo",
+    "qty": 10,
+    "price": 500
+}
+
+###
+POST http://localhost:8000/api/managers/sales
+Authorization: 123456789
+Content-Type: application/json
+
+{
+    "id": 0,
+    "customer_id": null,
+    "positions": [{"id": 0, "product_id": 1, "qty": 1, "price": 500}, {"id": 0, "product_id": 2, "qty": 1, "price": 1000}]
+}
+
+###
+GET http://localhost:8000/api/managers/sales
+Authorization: 123456789
+Content-Type: application/json
